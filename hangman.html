@@ -1,0 +1,132 @@
+<html>
+<head>
+	<p><font size = '100' color = 'red'><b>HANGMAN (PLEASE ONLY TYPE ONE LETTER AT A TIME)</b></font></p>
+	<style>
+	div.line {
+		background-image:url('line.png');
+	}
+
+	div.letter {
+		width: 96px;
+		height: 120px;
+		display: inline-block;
+		float: left;
+		text-align: center;
+		font-size: 30px;
+		color: red;
+		padding-top: 10px;
+	}
+	div.clearfix {
+		clear:both;
+	}
+	div.box {
+		background-color:orange;
+		height:300px;
+		width:300px;
+		float:right;
+		font-size: 30px;
+		color:blue;
+		letter-spacing:10px;
+		word-wrap:break-word;
+	}
+	</style>
+
+	<br>
+	<p><font size = '100' color = 'red'><b>YOU GET 4 CHANCES.  GOOD LUCK!</b></font></p>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src = "http://underscorejs.org/underscore.js"></script>
+</head>
+<body background = 'Light-Green-Background-Desktop-690x431.jpg' height = '1000px'>
+<body>
+	<img src = 'http://upload.wikimedia.org/wikipedia/commons/8/8b/Hangman-0.png' class = 'hangman' id='jj'>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<div class = 'word'></div>
+	<div class = 'clearfix'></div>
+	<div class = 'box'></div>
+	Type a word in for your partner to guess -->
+	<input id = "input">
+	<br>
+	<br>
+	<button>Submit Word</button>
+	<br>
+	<br>
+	<br>
+	<br>
+	Guessing Box -->
+	<input id = "guess">
+	<script>
+	var
+		word,
+		misses = 0,
+		word_box = [],
+		space = '   ',
+		hits = [];
+
+	$('button').on('click', function(e) {
+		word = $('#input').val();
+		$('#input').val('');
+		for (var i = 0; i < word.length; i++) {
+			var
+				additional_class = '';
+
+			if (word[i] != ' ')
+			{
+				additional_class = ' line'
+			}
+			$('.word').append('<div class="letter' + additional_class + '" id="line' + i + '"></div>')
+		}
+		$("#guess").on("keyup", function(e) {
+			var input = $('#guess').val();
+			console.log($('#guess').val());
+
+			if (word.indexOf(input) !== -1) {
+				var new_word = word;
+				hits.push(input);
+				if (_.every(word_box, function(e) { return e !== input })) {
+					word_box.push(input);
+				}
+				while (new_word.indexOf(input) !== -1) {
+					var
+						new_index = new_word.indexOf(input),
+						index = new_index + (word.length - new_word.length);
+
+					if (_.every(hits, function(e) { return e !== input })) {
+						hits.push(input);
+					}	
+					new_word = new_word.substr(new_index + 1, new_word.length + 1);
+					$('#line' + index).html(input);
+					$('.box').html(word_box); 
+				}
+			}
+			else {
+				misses = misses + 1
+				if (_.every(word_box, function(e) { return e !== input })) {
+					word_box.push(input);
+				}
+				
+				var images = [
+					'http://upload.wikimedia.org/wikipedia/commons/3/30/Hangman-1.png', 
+					'http://upload.wikimedia.org/wikipedia/commons/7/70/Hangman-2.png',
+					'60px-Hangman-4.png',
+					'http://upload.wikimedia.org/wikipedia/commons/d/d6/Hangman-6.png'
+				];
+				$('.hangman').attr('src', images[misses - 1])
+				if (misses == 4) {
+					window.alert("Sorry, you lost...")
+					location.reload()
+				}
+			}
+			if (_.uniq(hits).length == _.uniq(word).length) {
+				window.alert("You won!! The word was " + word + '!')
+				location.reload()
+			}
+			$('#guess').val('');
+		});
+	});
+	</script>
+</body>
+</html>
